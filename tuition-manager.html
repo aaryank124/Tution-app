@@ -1,0 +1,1118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+<title>Vidya Ledger — Home Tuition Manager</title>
+<style>
+  :root{
+    --navy:#182849;
+    --navy-2:#233868;
+    --paper:#FBFAF6;
+    --paper-2:#F2EEE3;
+    --line:#DED6C3;
+    --gold:#C08A2E;
+    --gold-2:#E0AE5C;
+    --maroon:#8F3A3A;
+    --green:#2E7D4F;
+    --ink:#20222A;
+    --ink-soft:#6B6659;
+    --radius:12px;
+    --font-serif:Georgia,'Noto Serif',serif;
+    --font-sans:'Roboto','Segoe UI',Arial,sans-serif;
+    --font-mono:'Roboto Mono',ui-monospace,'SFMono-Regular',Consolas,monospace;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--paper-2);
+    font-family:var(--font-sans);
+    color:var(--ink);
+    -webkit-font-smoothing:antialiased;
+  }
+  #app{
+    max-width:480px;
+    margin:0 auto;
+    min-height:100vh;
+    background:var(--paper);
+    display:flex;
+    flex-direction:column;
+    box-shadow:0 0 40px rgba(0,0,0,.06);
+  }
+  /* ---------- Topbar ---------- */
+  .topbar{
+    background:var(--navy);
+    color:var(--paper);
+    padding:18px 18px 16px;
+    display:flex;
+    align-items:center;
+    gap:12px;
+    border-bottom:3px solid var(--gold);
+  }
+  .topbar svg{flex:0 0 auto;}
+  .brand h1{
+    font-family:var(--font-serif);
+    font-size:20px;
+    font-weight:700;
+    margin:0;
+    letter-spacing:.2px;
+  }
+  .brand p{
+    margin:2px 0 0;
+    font-size:11.5px;
+    color:var(--gold-2);
+    letter-spacing:.4px;
+  }
+  /* ---------- Tabbar ---------- */
+  .tabbar{
+    display:flex;
+    gap:6px;
+    padding:10px 12px;
+    overflow-x:auto;
+    background:var(--navy-2);
+    scrollbar-width:none;
+  }
+  .tabbar::-webkit-scrollbar{display:none;}
+  .tab-btn{
+    flex:0 0 auto;
+    display:flex;
+    align-items:center;
+    gap:6px;
+    padding:8px 13px;
+    border-radius:999px;
+    border:1px solid transparent;
+    background:rgba(255,255,255,.06);
+    color:#D7DCEA;
+    font-size:12.5px;
+    font-family:var(--font-sans);
+    cursor:pointer;
+    white-space:nowrap;
+  }
+  .tab-btn svg{width:15px;height:15px;}
+  .tab-btn.active{
+    background:var(--gold);
+    color:var(--navy);
+    font-weight:700;
+    border-color:var(--gold);
+  }
+  /* ---------- Content ---------- */
+  main{
+    flex:1;
+    padding:18px 16px 90px;
+  }
+  .section-head{
+    display:flex;
+    align-items:baseline;
+    justify-content:space-between;
+    margin-bottom:14px;
+  }
+  .section-head h2{
+    font-family:var(--font-serif);
+    font-size:19px;
+    margin:0;
+    color:var(--navy);
+  }
+  .section-head p{
+    margin:2px 0 0;
+    font-size:12px;
+    color:var(--ink-soft);
+  }
+  .btn{
+    font-family:var(--font-sans);
+    font-size:13px;
+    font-weight:600;
+    border:none;
+    border-radius:8px;
+    padding:9px 14px;
+    cursor:pointer;
+    display:inline-block;
+    text-align:center;
+  }
+  .btn-primary{background:var(--navy);color:var(--paper);}
+  .btn-gold{background:var(--gold);color:var(--navy);}
+  .btn-ghost{background:transparent;color:var(--navy);border:1px solid var(--line);}
+  .btn-sm{padding:6px 10px;font-size:12px;border-radius:6px;}
+  .btn-block{width:100%;}
+  .fab-row{margin-bottom:16px;}
+  /* ---------- Stat cards ---------- */
+  .stat-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:10px;
+    margin-bottom:20px;
+  }
+  .stat-card{
+    background:var(--paper);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    padding:13px 14px;
+  }
+  .stat-card .label{
+    font-size:11px;
+    color:var(--ink-soft);
+    letter-spacing:.2px;
+  }
+  .stat-card .value{
+    font-family:var(--font-mono);
+    font-variant-numeric:tabular-nums;
+    font-size:20px;
+    font-weight:700;
+    color:var(--navy);
+    margin-top:3px;
+  }
+  .stat-card .value.warn{color:var(--maroon);}
+  .stat-card .value.good{color:var(--green);}
+  /* ---------- Record cards / list rows ---------- */
+  .card-list{display:flex;flex-direction:column;gap:8px;}
+  .record{
+    display:flex;
+    align-items:center;
+    gap:11px;
+    background:var(--paper);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    padding:11px 12px;
+  }
+  .avatar{
+    flex:0 0 auto;
+    width:38px;height:38px;
+    border-radius:50%;
+    background:var(--navy);
+    color:var(--gold-2);
+    display:flex;align-items:center;justify-content:center;
+    font-family:var(--font-serif);
+    font-weight:700;
+    font-size:15px;
+  }
+  .record .main{flex:1;min-width:0;}
+  .record .title{
+    font-size:14px;
+    font-weight:600;
+    color:var(--ink);
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+  }
+  .record .sub{
+    font-size:12px;
+    color:var(--ink-soft);
+    margin-top:1px;
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+  }
+  .record .trail{
+    flex:0 0 auto;
+    text-align:right;
+  }
+  .record .amount{
+    font-family:var(--font-mono);
+    font-variant-numeric:tabular-nums;
+    font-size:13.5px;
+    font-weight:700;
+    color:var(--navy);
+  }
+  .badge{
+    display:inline-block;
+    font-size:10.5px;
+    font-weight:700;
+    padding:2px 8px;
+    border-radius:999px;
+    letter-spacing:.2px;
+    margin-top:3px;
+  }
+  .badge.paid{background:#E4F1E9;color:var(--green);}
+  .badge.pending{background:#F7E7E2;color:var(--maroon);}
+  .badge.active{background:#E4F1E9;color:var(--green);}
+  .badge.inactive{background:#EFEBE0;color:var(--ink-soft);}
+  .record-actions{
+    display:flex;
+    gap:6px;
+    margin-top:8px;
+  }
+  .icon-btn{
+    border:1px solid var(--line);
+    background:var(--paper);
+    border-radius:7px;
+    width:30px;height:30px;
+    display:flex;align-items:center;justify-content:center;
+    cursor:pointer;
+    color:var(--ink-soft);
+  }
+  .icon-btn svg{width:15px;height:15px;}
+  .icon-btn.danger{color:var(--maroon);border-color:#EAD7CF;}
+  .record-full{flex-direction:column;align-items:stretch;}
+  .record-full .row1{display:flex;align-items:center;gap:11px;}
+  /* ---------- Search ---------- */
+  .search{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    background:var(--paper-2);
+    border:1px solid var(--line);
+    border-radius:8px;
+    padding:8px 10px;
+    margin-bottom:12px;
+  }
+  .search input{
+    border:none;background:transparent;outline:none;
+    font-size:13px;flex:1;color:var(--ink);font-family:var(--font-sans);
+  }
+  .search svg{width:15px;height:15px;color:var(--ink-soft);}
+  /* ---------- Empty state ---------- */
+  .empty{
+    text-align:center;
+    padding:34px 16px;
+    border:1px dashed var(--line);
+    border-radius:var(--radius);
+    color:var(--ink-soft);
+  }
+  .empty svg{width:34px;height:34px;color:var(--gold);margin-bottom:8px;}
+  .empty p{font-size:13px;margin:0 0 12px;}
+  /* ---------- Ledger rows (fees/salary/income) ---------- */
+  .ledger-row{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding:10px 0;
+    border-bottom:1px solid var(--line);
+    gap:10px;
+  }
+  .ledger-row:last-child{border-bottom:none;}
+  .ledger-row .l-main .l-title{font-size:13.5px;font-weight:600;}
+  .ledger-row .l-main .l-sub{font-size:11.5px;color:var(--ink-soft);margin-top:1px;}
+  .ledger-row .l-amt{
+    font-family:var(--font-mono);
+    font-variant-numeric:tabular-nums;
+    font-size:13.5px;font-weight:700;
+    white-space:nowrap;
+  }
+  .l-amt.in{color:var(--green);}
+  .l-amt.out{color:var(--maroon);}
+  .section-block{
+    background:var(--paper);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    padding:4px 14px;
+    margin-bottom:16px;
+  }
+  .block-title{
+    font-size:12px;
+    font-weight:700;
+    color:var(--navy);
+    padding:12px 0 6px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+  }
+  .total-strip{
+    display:flex;justify-content:space-between;align-items:center;
+    background:var(--navy);color:var(--paper);
+    border-radius:var(--radius);
+    padding:14px 16px;margin-bottom:16px;
+  }
+  .total-strip .t-label{font-size:11.5px;color:var(--gold-2);}
+  .total-strip .t-value{
+    font-family:var(--font-mono);font-size:22px;font-weight:700;margin-top:2px;
+  }
+  .month-filter{
+    display:flex;gap:8px;margin-bottom:14px;
+  }
+  .month-filter select, .month-filter input{
+    flex:1;font-family:var(--font-sans);font-size:13px;
+    padding:8px 10px;border:1px solid var(--line);border-radius:8px;
+    background:var(--paper);color:var(--ink);
+  }
+  .import-note{font-size:12px;color:var(--ink-soft);margin:-8px 0 14px;}
+  .import-preview-wrap{
+    overflow-x:auto;border:1px solid var(--line);border-radius:8px;
+    margin:10px 0 4px;
+  }
+  .import-preview-table{width:100%;border-collapse:collapse;font-size:11px;}
+  .import-preview-table th, .import-preview-table td{
+    padding:6px 8px;border-bottom:1px solid var(--line);white-space:nowrap;text-align:left;
+  }
+  .import-preview-table th{color:var(--ink-soft);font-weight:700;background:var(--paper-2);}
+  .import-preview-table tr:last-child td{border-bottom:none;}
+  /* ---------- Modal ---------- */
+  .modal-backdrop{
+    position:fixed;inset:0;background:rgba(20,20,20,.5);
+    display:flex;align-items:flex-end;justify-content:center;
+    z-index:50;
+  }
+  .modal-sheet{
+    background:var(--paper);
+    width:100%;max-width:480px;
+    border-radius:16px 16px 0 0;
+    max-height:88vh;
+    overflow-y:auto;
+    padding:18px 18px 22px;
+    animation:slideUp .18s ease-out;
+  }
+  @keyframes slideUp{from{transform:translateY(24px);opacity:0;}to{transform:translateY(0);opacity:1;}}
+  .modal-sheet h3{
+    font-family:var(--font-serif);
+    color:var(--navy);font-size:17px;margin:0 0 14px;
+  }
+  .field{margin-bottom:12px;}
+  .field label{
+    display:block;font-size:11.5px;font-weight:700;color:var(--ink-soft);
+    margin-bottom:5px;letter-spacing:.2px;
+  }
+  .field input, .field select, .field textarea{
+    width:100%;font-family:var(--font-sans);font-size:14px;
+    padding:9px 10px;border:1px solid var(--line);border-radius:8px;
+    background:var(--paper);color:var(--ink);
+  }
+  .field textarea{resize:vertical;min-height:56px;}
+  .modal-actions{display:flex;gap:10px;margin-top:16px;}
+  .modal-actions .btn{flex:1;}
+  /* ---------- Toast ---------- */
+  .toast{
+    position:fixed;left:50%;bottom:22px;transform:translateX(-50%) translateY(120%);
+    background:var(--navy);color:var(--paper);
+    padding:10px 18px;border-radius:999px;font-size:12.5px;
+    transition:transform .2s ease;z-index:60;
+    box-shadow:0 6px 20px rgba(0,0,0,.25);
+  }
+  .toast.show{transform:translateX(-50%) translateY(0);}
+  .loading{
+    display:flex;align-items:center;justify-content:center;
+    padding:60px 0;color:var(--ink-soft);font-size:13px;
+  }
+</style>
+</head>
+<body>
+<div id="app">
+  <header class="topbar">
+    <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M12 6.2c-2-1.6-5.2-2.1-8.4-1.6v13.4c3.2-.5 6.4 0 8.4 1.6 2-1.6 5.2-2.1 8.4-1.6V4.6c-3.2-.5-6.4 0-8.4 1.6z"/>
+      <path d="M12 6.2v13.4"/>
+    </svg>
+    <div class="brand">
+      <h1>Vidya Ledger</h1>
+      <p>HOME TUITION MANAGER</p>
+    </div>
+  </header>
+  <nav class="tabbar" id="tabbar"></nav>
+  <main id="content"><div class="loading">Opening register…</div></main>
+  <div id="modal-root"></div>
+  <div class="toast" id="toast"></div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+<script>
+/* ============ ICONS ============ */
+const ICONS = {
+  dashboard:'<path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h5v-6h4v6h5V9.5"/>',
+  students:'<circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.2 3.6-6.5 8-6.5s8 2.3 8 6.5"/>',
+  batches:'<circle cx="8.5" cy="8.5" r="3.2"/><circle cx="16" cy="9.5" r="2.4"/><path d="M2.7 20.3c0-3.6 2.9-5.7 5.8-5.7s5.8 2.1 5.8 5.7"/><path d="M14.6 15c2.3.4 4.2 2 4.2 5"/>',
+  teachers:'<circle cx="10" cy="8" r="4"/><path d="M3 21c0-4.2 3.4-6.5 7-6.5"/><path d="M14.5 15.3l2 2 4-4.2"/>',
+  fees:'<rect x="3" y="6.5" width="18" height="12" rx="2.2"/><path d="M3 10h18"/><circle cx="17" cy="14.5" r="1.3"/>',
+  salary:'<rect x="2.3" y="6" width="19.4" height="12.5" rx="2.2"/><circle cx="12" cy="12.25" r="3"/><path d="M5.3 9v0M18.7 15.5v0"/>',
+  income:'<path d="M3 17.5 9 11l4 4 8-8.5"/><path d="M15 6.5h6v6"/>',
+  search:'<circle cx="10.5" cy="10.5" r="6.5"/><path d="M20 20l-4.5-4.5"/>',
+  edit:'<path d="M4 20h4l10.5-10.5a2 2 0 0 0-4-4L4 16v4z"/>',
+  trash:'<path d="M4 7h16"/><path d="M9 7V4.6c0-.6.5-1.1 1.1-1.1h3.8c.6 0 1.1.5 1.1 1.1V7"/><path d="M6 7l1 13.2c0 .6.5 1.1 1.1 1.1h7.8c.6 0 1.1-.5 1.1-1.1L18 7"/>',
+  plus:'<path d="M12 5v14"/><path d="M5 12h14"/>',
+  book_empty:'<path d="M12 6.2c-2-1.6-5.2-2.1-8.4-1.6v13.4c3.2-.5 6.4 0 8.4 1.6 2-1.6 5.2-2.1 8.4-1.6V4.6c-3.2-.5-6.4 0-8.4 1.6z"/><path d="M12 6.2v13.4"/>'
+};
+function icon(name,size=16){return `<svg width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">${ICONS[name]||''}</svg>`;}
+
+/* ============ STATE ============ */
+const KEYS = ['students','batches','teachers','fees','salaries','income'];
+let state = {students:[],batches:[],teachers:[],fees:[],salaries:[],income:[]};
+let activeTab = 'dashboard';
+
+const TABS = [
+  {id:'dashboard',label:'Dashboard',icon:'dashboard'},
+  {id:'students',label:'Students',icon:'students'},
+  {id:'batches',label:'Batches',icon:'batches'},
+  {id:'teachers',label:'Teachers',icon:'teachers'},
+  {id:'fees',label:'Fees',icon:'fees'},
+  {id:'salary',label:'Salary',icon:'salary'},
+  {id:'income',label:'Income',icon:'income'}
+];
+
+function uid(p){return p+'_'+Date.now().toString(36)+Math.random().toString(36).slice(2,7);}
+function rupee(n){n=Number(n)||0;return '₹'+n.toLocaleString('en-IN');}
+function esc(s){return (s==null?'':String(s)).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+function initials(name){if(!name)return '?';const p=name.trim().split(/\s+/);return ((p[0]?.[0]||'')+(p[1]?.[0]||'')).toUpperCase()||'?';}
+function currentMonthKey(){const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');}
+function monthLabel(mk){if(!mk)return '';const [y,m]=mk.split('-');const d=new Date(Number(y),Number(m)-1,1);return d.toLocaleString('en-IN',{month:'short',year:'numeric'});}
+function fmtDate(ds){if(!ds)return '—';const d=new Date(ds);if(isNaN(d))return ds;return d.toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'});}
+
+function toast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg;
+  t.classList.add('show');
+  clearTimeout(toast._t);
+  toast._t=setTimeout(()=>t.classList.remove('show'),2200);
+}
+
+/* ============ STORAGE ============ */
+const LS_PREFIX = 'vidya_ledger_v1_';
+let storageBroken = false;
+async function loadAll(){
+  KEYS.forEach(k=>{
+    try{
+      const raw = localStorage.getItem(LS_PREFIX+k);
+      state[k] = raw ? JSON.parse(raw) : [];
+    }catch(e){
+      state[k] = [];
+    }
+  });
+}
+async function saveKey(key){
+  try{
+    localStorage.setItem(LS_PREFIX+key, JSON.stringify(state[key]));
+  }catch(e){
+    storageBroken = true;
+    toast('Could not save on this device/browser. Try a different browser, or make sure storage/cookies are allowed.');
+  }
+}
+
+/* ============ LOOKUPS ============ */
+function batchById(id){return state.batches.find(b=>b.id===id);}
+function teacherById(id){return state.teachers.find(t=>t.id===id);}
+function studentById(id){return state.students.find(s=>s.id===id);}
+
+/* ============ RENDER: TABBAR ============ */
+function renderTabbar(){
+  const bar=document.getElementById('tabbar');
+  bar.innerHTML = TABS.map(t=>`
+    <button class="tab-btn ${activeTab===t.id?'active':''}" data-tab="${t.id}">
+      ${icon(t.icon,15)}<span>${t.label}</span>
+    </button>`).join('');
+}
+
+/* ============ ROUTER ============ */
+function render(){
+  renderTabbar();
+  const c=document.getElementById('content');
+  const map={
+    dashboard:renderDashboard, students:renderStudents, batches:renderBatches,
+    teachers:renderTeachers, fees:renderFees, salary:renderSalary, income:renderIncome
+  };
+  c.innerHTML = (map[activeTab]||renderDashboard)();
+}
+
+/* ============ DASHBOARD ============ */
+function renderDashboard(){
+  const mk = currentMonthKey();
+  const activeStudents = state.students.filter(s=>s.status!=='Inactive').length;
+  const activeTeachers = state.teachers.filter(t=>t.status!=='Inactive').length;
+  const feeIncomeThisMonth = state.fees.filter(f=>f.status==='Paid' && f.month===mk).reduce((s,f)=>s+Number(f.amount||0),0);
+  const otherIncomeThisMonth = state.income.filter(i=>(i.date||'').slice(0,7)===mk).reduce((s,i)=>s+Number(i.amount||0),0);
+  const monthIncome = feeIncomeThisMonth + otherIncomeThisMonth;
+  const pendingFees = state.fees.filter(f=>f.status==='Pending');
+  const pendingFeesAmt = pendingFees.reduce((s,f)=>s+Number(f.amount||0),0);
+  const pendingSalaries = state.salaries.filter(s=>s.status==='Pending');
+  const pendingSalaryAmt = pendingSalaries.reduce((s,f)=>s+Number(f.amount||0),0);
+
+  if(!state.students.length && !state.teachers.length){
+    return `
+    <div class="section-head"><div><h2>Welcome</h2><p>Your tuition register is empty</p></div></div>
+    <div class="empty">
+      ${icon('book_empty',34)}
+      <p>Add your first student and teacher to start tracking fees, batches and salaries.</p>
+      <button class="btn btn-gold" data-action="add-student">Add a Student</button>
+    </div>`;
+  }
+
+  const duesRows = pendingFees.slice().sort((a,b)=>(a.month||'').localeCompare(b.month||'')).slice(0,5).map(f=>{
+    const st = studentById(f.studentId);
+    return `<div class="ledger-row">
+      <div class="l-main"><div class="l-title">${esc(st?st.name:'Unknown student')}</div>
+      <div class="l-sub">${monthLabel(f.month)}</div></div>
+      <button class="btn btn-sm btn-ghost" data-action="quick-pay-fee" data-id="${f.id}">Mark Paid</button>
+    </div>`;
+  }).join('') || `<div class="ledger-row"><div class="l-main"><div class="l-sub">No pending fees. Register is clean.</div></div></div>`;
+
+  return `
+  <div class="section-head"><div><h2>Dashboard</h2><p>${new Date().toLocaleDateString('en-IN',{weekday:'long',day:'numeric',month:'long'})}</p></div></div>
+  <div class="stat-grid">
+    <div class="stat-card"><div class="label">Active Students</div><div class="value">${activeStudents}</div></div>
+    <div class="stat-card"><div class="label">Active Teachers</div><div class="value">${activeTeachers}</div></div>
+    <div class="stat-card"><div class="label">This Month's Income</div><div class="value good">${rupee(monthIncome)}</div></div>
+    <div class="stat-card"><div class="label">Pending Fees</div><div class="value warn">${rupee(pendingFeesAmt)}</div></div>
+    <div class="stat-card"><div class="label">Total Batches</div><div class="value">${state.batches.length}</div></div>
+    <div class="stat-card"><div class="label">Pending Salaries</div><div class="value warn">${rupee(pendingSalaryAmt)}</div></div>
+  </div>
+  <div class="section-block">
+    <div class="block-title">FEES DUE</div>
+    ${duesRows}
+  </div>`;
+}
+
+/* ============ GENERIC EMPTY ============ */
+function emptyBlock(msg, actionLabel, actionName){
+  return `<div class="empty">${icon('book_empty',30)}<p>${esc(msg)}</p>
+    <button class="btn btn-gold" data-action="${actionName}">${esc(actionLabel)}</button></div>`;
+}
+
+/* ============ STUDENTS ============ */
+let studentSearch = '';
+function renderStudents(){
+  let list = state.students.slice().sort((a,b)=>a.name.localeCompare(b.name));
+  if(studentSearch.trim()){
+    const q=studentSearch.toLowerCase();
+    list = list.filter(s=>(s.name||'').toLowerCase().includes(q) || (s.grade||'').toLowerCase().includes(q));
+  }
+  const rows = list.map(s=>{
+    const b = batchById(s.batchId);
+    return `<div class="record record-full">
+      <div class="row1">
+        <div class="avatar">${initials(s.name)}</div>
+        <div class="main">
+          <div class="title">${esc(s.name)} <span class="badge ${s.status==='Inactive'?'inactive':'active'}">${esc(s.status||'Active')}</span></div>
+          <div class="sub">${esc(s.grade||'')}${b?' · '+esc(b.name):''}${s.parentPhone?' · '+esc(s.parentPhone):''}</div>
+        </div>
+        <div class="trail"><div class="amount">${rupee(s.monthlyFee)}</div></div>
+      </div>
+      <div class="record-actions">
+        <button class="icon-btn" data-action="edit-student" data-id="${s.id}">${icon('edit')}</button>
+        <button class="icon-btn danger" data-action="delete-student" data-id="${s.id}">${icon('trash')}</button>
+      </div>
+    </div>`;
+  }).join('');
+
+  return `
+  <div class="section-head"><div><h2>Students</h2><p>${state.students.length} on record</p></div>
+    <div style="display:flex;gap:6px;">
+      <button type="button" class="btn btn-ghost btn-sm" data-action="open-import-paste" data-entity="student">Import</button>
+      <button class="btn btn-gold btn-sm" data-action="add-student">${icon('plus',13)} Add</button>
+    </div></div>
+  <div class="search">${icon('search')}<input id="student-search" placeholder="Search by name or class" value="${esc(studentSearch)}"></div>
+  ${list.length? `<div class="card-list">${rows}</div>` : emptyBlock(state.students.length? 'No student matches that search.':'No students yet. Add the first one to begin the register.','Add a Student','add-student')}
+  `;
+}
+
+/* ============ BATCHES ============ */
+function renderBatches(){
+  const rows = state.batches.slice().sort((a,b)=>a.name.localeCompare(b.name)).map(b=>{
+    const t = teacherById(b.teacherId);
+    const count = state.students.filter(s=>s.batchId===b.id).length;
+    return `<div class="record record-full">
+      <div class="row1">
+        <div class="avatar">${initials(b.name)}</div>
+        <div class="main">
+          <div class="title">${esc(b.name)}</div>
+          <div class="sub">${esc(b.subject||'')}${b.days?' · '+esc(b.days):''}${b.time?' · '+esc(b.time):''}</div>
+          <div class="sub">${t?'Teacher: '+esc(t.name):'No teacher assigned'} · ${count} student${count===1?'':'s'}</div>
+        </div>
+        <div class="trail"><div class="amount">${rupee(b.fee)}</div></div>
+      </div>
+      <div class="record-actions">
+        <button class="icon-btn" data-action="edit-batch" data-id="${b.id}">${icon('edit')}</button>
+        <button class="icon-btn danger" data-action="delete-batch" data-id="${b.id}">${icon('trash')}</button>
+      </div>
+    </div>`;
+  }).join('');
+  return `
+  <div class="section-head"><div><h2>Batches</h2><p>${state.batches.length} running</p></div>
+    <div style="display:flex;gap:6px;">
+      <button type="button" class="btn btn-ghost btn-sm" data-action="open-import-paste" data-entity="batch">Import</button>
+      <button class="btn btn-gold btn-sm" data-action="add-batch">${icon('plus',13)} Add</button>
+    </div></div>
+  ${state.batches.length? `<div class="card-list">${rows}</div>` : emptyBlock('No batches yet. Create one to group students by timing and subject.','Add a Batch','add-batch')}
+  `;
+}
+
+/* ============ TEACHERS ============ */
+function renderTeachers(){
+  const rows = state.teachers.slice().sort((a,b)=>a.name.localeCompare(b.name)).map(t=>{
+    return `<div class="record record-full">
+      <div class="row1">
+        <div class="avatar">${initials(t.name)}</div>
+        <div class="main">
+          <div class="title">${esc(t.name)} <span class="badge ${t.status==='Inactive'?'inactive':'active'}">${esc(t.status||'Active')}</span></div>
+          <div class="sub">${esc(t.subject||'')}${t.phone?' · '+esc(t.phone):''}</div>
+        </div>
+        <div class="trail"><div class="amount">${rupee(t.salary)}/mo</div></div>
+      </div>
+      <div class="record-actions">
+        <button class="icon-btn" data-action="edit-teacher" data-id="${t.id}">${icon('edit')}</button>
+        <button class="icon-btn danger" data-action="delete-teacher" data-id="${t.id}">${icon('trash')}</button>
+      </div>
+    </div>`;
+  }).join('');
+  return `
+  <div class="section-head"><div><h2>Teachers</h2><p>${state.teachers.length} on staff</p></div>
+    <div style="display:flex;gap:6px;">
+      <button type="button" class="btn btn-ghost btn-sm" data-action="open-import-paste" data-entity="teacher">Import</button>
+      <button class="btn btn-gold btn-sm" data-action="add-teacher">${icon('plus',13)} Add</button>
+    </div></div>
+  ${state.teachers.length? `<div class="card-list">${rows}</div>` : emptyBlock('No teachers yet. Add staff to assign them to batches.','Add a Teacher','add-teacher')}
+  `;
+}
+
+/* ============ FEES ============ */
+function renderFees(){
+  const rows = state.fees.slice().sort((a,b)=>(b.month||'').localeCompare(a.month||'')).map(f=>{
+    const s = studentById(f.studentId);
+    return `<div class="ledger-row">
+      <div class="l-main">
+        <div class="l-title">${esc(s?s.name:'Unknown student')}</div>
+        <div class="l-sub">${monthLabel(f.month)} · ${esc(f.mode||'—')} ${f.status==='Paid'?('· paid '+fmtDate(f.paidDate)):''}</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <div>
+          <div class="l-amt ${f.status==='Paid'?'in':'out'}">${rupee(f.amount)}</div>
+          <span class="badge ${f.status==='Paid'?'paid':'pending'}">${esc(f.status)}</span>
+        </div>
+        <button class="icon-btn" data-action="edit-fee" data-id="${f.id}">${icon('edit')}</button>
+        <button class="icon-btn danger" data-action="delete-fee" data-id="${f.id}">${icon('trash')}</button>
+      </div>
+    </div>`;
+  }).join('');
+  return `
+  <div class="section-head"><div><h2>Fees</h2><p>Student fee ledger</p></div>
+    <button class="btn btn-gold btn-sm" data-action="add-fee">${icon('plus',13)} Log Fee</button></div>
+  ${state.fees.length? `<div class="section-block">${rows}</div>` : emptyBlock('No fee entries yet. Log a payment or a due amount.','Log a Fee','add-fee')}
+  `;
+}
+
+/* ============ SALARY ============ */
+function renderSalary(){
+  const rows = state.salaries.slice().sort((a,b)=>(b.month||'').localeCompare(a.month||'')).map(sl=>{
+    const t = teacherById(sl.teacherId);
+    return `<div class="ledger-row">
+      <div class="l-main">
+        <div class="l-title">${esc(t?t.name:'Unknown teacher')}</div>
+        <div class="l-sub">${monthLabel(sl.month)} ${sl.status==='Paid'?('· paid '+fmtDate(sl.paidDate)):''}</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <div>
+          <div class="l-amt ${sl.status==='Paid'?'out':'out'}">${rupee(sl.amount)}</div>
+          <span class="badge ${sl.status==='Paid'?'paid':'pending'}">${esc(sl.status)}</span>
+        </div>
+        <button class="icon-btn" data-action="edit-salary" data-id="${sl.id}">${icon('edit')}</button>
+        <button class="icon-btn danger" data-action="delete-salary" data-id="${sl.id}">${icon('trash')}</button>
+      </div>
+    </div>`;
+  }).join('');
+  return `
+  <div class="section-head"><div><h2>Salary</h2><p>Teacher salary ledger</p></div>
+    <button class="btn btn-gold btn-sm" data-action="add-salary">${icon('plus',13)} Log Salary</button></div>
+  ${state.salaries.length? `<div class="section-block">${rows}</div>` : emptyBlock('No salary entries yet. Log a payment to a teacher.','Log a Salary','add-salary')}
+  `;
+}
+
+/* ============ INCOME ============ */
+let incomeMonthFilter = '';
+function renderIncome(){
+  const feeIncome = state.fees.filter(f=>f.status==='Paid').map(f=>({
+    id:'fee_'+f.id, date:f.paidDate||'', title:(studentById(f.studentId)?.name||'Student')+' — fee', amount:Number(f.amount||0), source:'fee'
+  }));
+  const otherIncome = state.income.map(i=>({
+    id:i.id, date:i.date||'', title:i.source||'Other income', desc:i.description||'', amount:Number(i.amount||0), source:'other'
+  }));
+  let all = [...feeIncome, ...otherIncome];
+  if(incomeMonthFilter){
+    all = all.filter(x=>(x.date||'').slice(0,7)===incomeMonthFilter);
+  }
+  all.sort((a,b)=>(b.date||'').localeCompare(a.date||''));
+  const total = all.reduce((s,x)=>s+x.amount,0);
+
+  const rows = all.map(x=>`
+    <div class="ledger-row">
+      <div class="l-main">
+        <div class="l-title">${esc(x.title)}</div>
+        <div class="l-sub">${fmtDate(x.date)}${x.desc?' · '+esc(x.desc):''}${x.source==='fee'?' · from fee ledger':''}</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <div class="l-amt in">${rupee(x.amount)}</div>
+        ${x.source==='other' ? `
+          <button class="icon-btn" data-action="edit-income" data-id="${x.id}">${icon('edit')}</button>
+          <button class="icon-btn danger" data-action="delete-income" data-id="${x.id}">${icon('trash')}</button>
+        ` : ''}
+      </div>
+    </div>`).join('');
+
+  return `
+  <div class="section-head"><div><h2>Income</h2><p>Fees collected + other income</p></div>
+    <button class="btn btn-gold btn-sm" data-action="add-income">${icon('plus',13)} Add Entry</button></div>
+  <div class="month-filter">
+    <input type="month" id="income-month" value="${incomeMonthFilter}">
+    <button class="btn btn-ghost btn-sm" id="income-clear">All time</button>
+  </div>
+  <div class="total-strip"><div><div class="t-label">TOTAL INCOME</div><div class="t-value">${rupee(total)}</div></div>${icon('income',26)}</div>
+  ${all.length? `<div class="section-block">${rows}</div>` : emptyBlock('No income recorded for this period.','Add an Entry','add-income')}
+  `;
+}
+
+/* ============ FORM CONFIGS ============ */
+function studentFields(){
+  return [
+    {key:'name',label:'Student Name',type:'text',required:true},
+    {key:'grade',label:'Class / Grade',type:'text'},
+    {key:'subject',label:'Subject(s)',type:'text'},
+    {key:'batchId',label:'Batch',type:'select',options:[{value:'',label:'— None —'},...state.batches.map(b=>({value:b.id,label:b.name}))]},
+    {key:'fatherName',label:"Father's Name",type:'text'},
+    {key:'motherName',label:"Mother's Name",type:'text'},
+    {key:'parentPhone',label:'Parent Contact Number',type:'tel'},
+    {key:'address',label:'Address',type:'textarea'},
+    {key:'admissionDate',label:'Admission Date',type:'date'},
+    {key:'monthlyFee',label:'Monthly Fee (₹)',type:'number'},
+    {key:'status',label:'Status',type:'select',options:[{value:'Active',label:'Active'},{value:'Inactive',label:'Inactive'}]}
+  ];
+}
+function batchFields(){
+  return [
+    {key:'name',label:'Batch Name',type:'text',required:true,placeholder:'e.g. Class 10 Science — Evening'},
+    {key:'subject',label:'Subject',type:'text'},
+    {key:'days',label:'Days',type:'text',placeholder:'Mon, Wed, Fri'},
+    {key:'time',label:'Timing',type:'text',placeholder:'5:00 PM – 6:00 PM'},
+    {key:'teacherId',label:'Teacher',type:'select',options:[{value:'',label:'— Unassigned —'},...state.teachers.map(t=>({value:t.id,label:t.name}))]},
+    {key:'fee',label:'Fee per Student (₹)',type:'number'}
+  ];
+}
+function teacherFields(){
+  return [
+    {key:'name',label:'Teacher Name',type:'text',required:true},
+    {key:'subject',label:'Subject',type:'text'},
+    {key:'phone',label:'Contact Number',type:'tel'},
+    {key:'joinDate',label:'Joining Date',type:'date'},
+    {key:'salary',label:'Monthly Salary (₹)',type:'number'},
+    {key:'status',label:'Status',type:'select',options:[{value:'Active',label:'Active'},{value:'Inactive',label:'Inactive'}]}
+  ];
+}
+function feeFields(){
+  return [
+    {key:'studentId',label:'Student',type:'select',required:true,options:state.students.map(s=>({value:s.id,label:s.name}))},
+    {key:'month',label:'For Month',type:'month',required:true},
+    {key:'amount',label:'Amount (₹)',type:'number',required:true},
+    {key:'status',label:'Status',type:'select',options:[{value:'Pending',label:'Pending'},{value:'Paid',label:'Paid'}]},
+    {key:'paidDate',label:'Payment Date',type:'date'},
+    {key:'mode',label:'Mode',type:'select',options:[{value:'Cash',label:'Cash'},{value:'Online',label:'Online'},{value:'Cheque',label:'Cheque'}]}
+  ];
+}
+function salaryFields(){
+  return [
+    {key:'teacherId',label:'Teacher',type:'select',required:true,options:state.teachers.map(t=>({value:t.id,label:t.name}))},
+    {key:'month',label:'For Month',type:'month',required:true},
+    {key:'amount',label:'Amount (₹)',type:'number',required:true},
+    {key:'status',label:'Status',type:'select',options:[{value:'Pending',label:'Pending'},{value:'Paid',label:'Paid'}]},
+    {key:'paidDate',label:'Payment Date',type:'date'}
+  ];
+}
+function incomeFields(){
+  return [
+    {key:'date',label:'Date',type:'date',required:true},
+    {key:'source',label:'Source',type:'text',required:true,placeholder:'e.g. Admission fee, Book sale'},
+    {key:'description',label:'Notes',type:'text'},
+    {key:'amount',label:'Amount (₹)',type:'number',required:true}
+  ];
+}
+
+const ENTITY = {
+  student:{stateKey:'students', fields:studentFields, title:(e)=>e?'Edit Student':'Add Student'},
+  batch:{stateKey:'batches', fields:batchFields, title:(e)=>e?'Edit Batch':'Add Batch'},
+  teacher:{stateKey:'teachers', fields:teacherFields, title:(e)=>e?'Edit Teacher':'Add Teacher'},
+  fee:{stateKey:'fees', fields:feeFields, title:(e)=>e?'Edit Fee Entry':'Log Fee'},
+  salary:{stateKey:'salaries', fields:salaryFields, title:(e)=>e?'Edit Salary Entry':'Log Salary'},
+  income:{stateKey:'income', fields:incomeFields, title:(e)=>e?'Edit Income Entry':'Add Income'}
+};
+
+/* ============ MODAL / FORM ============ */
+function fieldHtml(f, record){
+  const val = record ? (record[f.key] ?? '') : (f.key==='status'? 'Active' : '');
+  const req = f.required ? 'required' : '';
+  if(f.type==='select'){
+    const opts = f.options.map(o=>`<option value="${esc(o.value)}" ${String(o.value)===String(val)?'selected':''}>${esc(o.label)}</option>`).join('');
+    return `<div class="field"><label>${esc(f.label)}</label><select name="${f.key}" ${req}>${opts}</select></div>`;
+  }
+  if(f.type==='textarea'){
+    return `<div class="field"><label>${esc(f.label)}</label><textarea name="${f.key}" ${req}>${esc(val)}</textarea></div>`;
+  }
+  return `<div class="field"><label>${esc(f.label)}</label><input type="${f.type}" name="${f.key}" value="${esc(val)}" placeholder="${esc(f.placeholder||'')}" ${req}></div>`;
+}
+
+function openForm(entityType, record){
+  const cfg = ENTITY[entityType];
+  const fields = cfg.fields();
+  if(!fields.length) return;
+  // guard: entities needing a related list that's empty
+  const needsStudent = entityType==='fee' && !state.students.length;
+  const needsTeacherForSalary = entityType==='salary' && !state.teachers.length;
+  if(needsStudent){ toast('Add a student first.'); return; }
+  if(needsTeacherForSalary){ toast('Add a teacher first.'); return; }
+
+  const root = document.getElementById('modal-root');
+  root.innerHTML = `
+    <div class="modal-backdrop" id="modal-backdrop">
+      <div class="modal-sheet">
+        <h3>${cfg.title(record)}</h3>
+        <div id="entity-form">
+          ${fields.map(f=>fieldHtml(f, record)).join('')}
+          <div class="modal-actions">
+            <button type="button" class="btn btn-ghost" id="modal-cancel">Cancel</button>
+            <button type="button" class="btn btn-primary" id="modal-save">Save</button>
+          </div>
+        </div>
+      </div>
+    </div>`;
+  document.getElementById('modal-cancel').addEventListener('click', closeModal);
+  document.getElementById('modal-backdrop').addEventListener('click', (e)=>{ if(e.target.id==='modal-backdrop') closeModal(); });
+  document.getElementById('modal-save').addEventListener('click', async ()=>{
+    const data = {};
+    let missing = '';
+    fields.forEach(f=>{
+      const el = document.querySelector(`#entity-form [name="${f.key}"]`);
+      const val = el ? el.value : '';
+      if(f.required && !String(val).trim() && !missing) missing = f.label;
+      data[f.key] = val;
+    });
+    if(missing){ toast('Please fill: '+missing); return; }
+    if(record){
+      Object.assign(record, data);
+    } else {
+      data.id = uid(entityType);
+      state[cfg.stateKey].push(data);
+    }
+    await saveKey(cfg.stateKey);
+    closeModal();
+    toast('Saved.');
+    render();
+  });
+}
+function closeModal(){ document.getElementById('modal-root').innerHTML=''; }
+
+/* ============ IMPORT (CSV / Excel) ============ */
+const IMPORT_LABEL = {student:'Students', batch:'Batches', teacher:'Teachers'};
+const MAP_HINTS = {
+  student:{
+    name:['student name','name','naam','student'],
+    grade:['class','grade','standard'],
+    subject:['subject'],
+    batchId:['batch'],
+    fatherName:['father'],
+    motherName:['mother'],
+    parentPhone:['parent contact','contact','phone','mobile','parent'],
+    address:['address'],
+    admissionDate:['admission','joining date','join date'],
+    monthlyFee:['monthly fee','fee','fees'],
+    status:['status']
+  },
+  batch:{
+    name:['batch name','name','batch'],
+    subject:['subject'],
+    days:['days'],
+    time:['time','timing'],
+    teacherId:['teacher'],
+    fee:['fee']
+  },
+  teacher:{
+    name:['teacher name','name','teacher'],
+    subject:['subject'],
+    phone:['phone','contact','mobile'],
+    joinDate:['joining','join date'],
+    salary:['salary'],
+    status:['status']
+  }
+};
+
+function findByName(arr, name){
+  if(!name) return '';
+  const n = String(name).trim().toLowerCase();
+  if(!n) return '';
+  const m = arr.find(x=>(x.name||'').trim().toLowerCase()===n);
+  return m ? m.id : '';
+}
+
+function openImportPaste(entityType){
+  const root = document.getElementById('modal-root');
+  root.innerHTML = `
+    <div class="modal-backdrop" id="modal-backdrop">
+      <div class="modal-sheet">
+        <h3>Import into ${IMPORT_LABEL[entityType]}</h3>
+        <p class="import-note">Excel/Google Sheet mein apna data (header row samet) select karo, copy karo, aur neeche paste karo.</p>
+        <div class="field"><textarea id="paste-area" rows="9" placeholder="Yahan paste karo (press & hold → Paste)"></textarea></div>
+        <div class="modal-actions">
+          <button type="button" class="btn btn-ghost" id="modal-cancel">Cancel</button>
+          <button type="button" class="btn btn-primary" id="paste-continue">Continue</button>
+        </div>
+      </div>
+    </div>`;
+  document.getElementById('modal-cancel').addEventListener('click', closeModal);
+  document.getElementById('modal-backdrop').addEventListener('click',(e)=>{ if(e.target.id==='modal-backdrop') closeModal(); });
+  document.getElementById('paste-continue').addEventListener('click', ()=>{
+    const text = document.getElementById('paste-area').value;
+    if(!text.trim()){ toast('Kuch paste nahi hua.'); return; }
+    if(typeof Papa==='undefined'){ toast('Import engine load nahi ho paya — internet check karo.'); return; }
+    Papa.parse(text.trim(), {
+      header:true, skipEmptyLines:true,
+      complete:(res)=>{
+        const rows = res.data || [];
+        const headers = res.meta.fields || [];
+        if(!rows.length){ toast('Koi valid row nahi mili.'); return; }
+        openImportMapping(entityType, headers, rows);
+      }
+    });
+  });
+}
+
+function openImportMapping(entityType, headers, rows){
+  const cfg = ENTITY[entityType];
+  const fields = cfg.fields();
+  const hints = MAP_HINTS[entityType] || {};
+  const guesses = {};
+  fields.forEach(f=>{
+    const hs = hints[f.key] || [];
+    let found = '';
+    for(const h of headers){
+      const hl = String(h).toLowerCase();
+      if(hs.some(k=>hl.includes(k))){ found = h; break; }
+    }
+    guesses[f.key] = found;
+  });
+
+  const root = document.getElementById('modal-root');
+  root.innerHTML = `
+    <div class="modal-backdrop" id="modal-backdrop">
+      <div class="modal-sheet">
+        <h3>Import into ${IMPORT_LABEL[entityType]}</h3>
+        <p class="import-note">${rows.length} row(s) found. Match your file's columns to each field — unmatched fields are left blank.</p>
+        <div id="map-fields">
+          ${fields.map(f=>`<div class="field"><label>${esc(f.label)}</label>
+            <select data-map="${f.key}">
+              <option value="">— Skip —</option>
+              ${headers.map(h=>`<option value="${esc(h)}" ${guesses[f.key]===h?'selected':''}>${esc(h)}</option>`).join('')}
+            </select></div>`).join('')}
+        </div>
+        <div class="import-preview-wrap">
+          <table class="import-preview-table">
+            <thead><tr>${headers.map(h=>`<th>${esc(h)}</th>`).join('')}</tr></thead>
+            <tbody>${rows.slice(0,3).map(r=>`<tr>${headers.map(h=>`<td>${esc(r[h])}</td>`).join('')}</tr>`).join('')}</tbody>
+          </table>
+        </div>
+        <div class="modal-actions">
+          <button type="button" class="btn btn-ghost" id="import-cancel">Cancel</button>
+          <button type="button" class="btn btn-primary" id="import-confirm">Import ${rows.length} row${rows.length===1?'':'s'}</button>
+        </div>
+      </div>
+    </div>`;
+  document.getElementById('import-cancel').addEventListener('click', closeModal);
+  document.getElementById('modal-backdrop').addEventListener('click',(e)=>{ if(e.target.id==='modal-backdrop') closeModal(); });
+  document.getElementById('import-confirm').addEventListener('click', async ()=>{
+    const mapping = {};
+    document.querySelectorAll('#map-fields [data-map]').forEach(sel=>{ mapping[sel.dataset.map] = sel.value; });
+    await doImport(entityType, fields, rows, mapping);
+  });
+}
+
+async function doImport(entityType, fields, rows, mapping){
+  const cfg = ENTITY[entityType];
+  const REF_LOOKUP = { batchId: state.batches, teacherId: state.teachers, studentId: state.students };
+  const primaryKey = fields[0].key;
+  let count = 0;
+  rows.forEach(r=>{
+    const rec = {};
+    fields.forEach(f=>{
+      const col = mapping[f.key];
+      let raw = col ? (r[col] ?? '') : '';
+      if(typeof raw==='string') raw = raw.trim();
+      if(REF_LOOKUP[f.key]){
+        rec[f.key] = findByName(REF_LOOKUP[f.key], raw);
+      } else if(f.type==='select' && f.options){
+        const match = f.options.find(o=>String(o.label).toLowerCase()===String(raw).toLowerCase() || String(o.value).toLowerCase()===String(raw).toLowerCase());
+        rec[f.key] = match ? match.value : (f.key==='status' ? 'Active' : '');
+      } else {
+        rec[f.key] = raw;
+      }
+    });
+    if(!rec[primaryKey]) return;
+    rec.id = uid(entityType);
+    state[cfg.stateKey].push(rec);
+    count++;
+  });
+  await saveKey(cfg.stateKey);
+  closeModal();
+  toast(count ? `Imported ${count} record${count===1?'':'s'}.` : 'No valid rows to import.');
+  render();
+}
+
+/* ============ ACTIONS ============ */
+async function handleAction(action, id){
+  switch(action){
+    case 'add-student': openForm('student'); break;
+    case 'edit-student': openForm('student', studentById(id)); break;
+    case 'delete-student': await removeRecord('students', id, 'Student removed.'); break;
+
+    case 'add-batch': openForm('batch'); break;
+    case 'edit-batch': openForm('batch', batchById(id)); break;
+    case 'delete-batch': await removeRecord('batches', id, 'Batch removed.'); break;
+
+    case 'add-teacher': openForm('teacher'); break;
+    case 'edit-teacher': openForm('teacher', teacherById(id)); break;
+    case 'delete-teacher': await removeRecord('teachers', id, 'Teacher removed.'); break;
+
+    case 'add-fee': openForm('fee'); break;
+    case 'edit-fee': openForm('fee', state.fees.find(f=>f.id===id)); break;
+    case 'delete-fee': await removeRecord('fees', id, 'Fee entry removed.'); break;
+    case 'quick-pay-fee': {
+      const f = state.fees.find(x=>x.id===id);
+      if(f){ f.status='Paid'; f.paidDate = f.paidDate || new Date().toISOString().slice(0,10); await saveKey('fees'); toast('Marked as paid.'); render(); }
+      break;
+    }
+
+    case 'add-salary': openForm('salary'); break;
+    case 'edit-salary': openForm('salary', state.salaries.find(s=>s.id===id)); break;
+    case 'delete-salary': await removeRecord('salaries', id, 'Salary entry removed.'); break;
+
+    case 'add-income': openForm('income'); break;
+    case 'edit-income': openForm('income', state.income.find(i=>i.id===id)); break;
+    case 'delete-income': await removeRecord('income', id, 'Income entry removed.'); break;
+  }
+}
+async function removeRecord(stateKey, id, msg){
+  if(!confirm('Delete this entry? This cannot be undone.')) return;
+  state[stateKey] = state[stateKey].filter(r=>r.id!==id);
+  await saveKey(stateKey);
+  toast(msg);
+  render();
+}
+
+/* ============ EVENTS ============ */
+function initEvents(){
+  document.getElementById('tabbar').addEventListener('click', (e)=>{
+    const btn = e.target.closest('[data-tab]');
+    if(!btn) return;
+    activeTab = btn.dataset.tab;
+    render();
+  });
+  document.getElementById('content').addEventListener('click', (e)=>{
+    const btn = e.target.closest('[data-action]');
+    if(!btn) return;
+    if(btn.dataset.action==='open-import-paste'){ openImportPaste(btn.dataset.entity); return; }
+    handleAction(btn.dataset.action, btn.dataset.id);
+  });
+  document.getElementById('content').addEventListener('input', (e)=>{
+    if(e.target.id==='student-search'){ studentSearch = e.target.value; renderStudentsInPlace(); }
+  });
+  document.getElementById('content').addEventListener('change', (e)=>{
+    if(e.target.id==='income-month'){ incomeMonthFilter = e.target.value; render(); }
+  });
+  document.getElementById('content').addEventListener('click', (e)=>{
+    if(e.target.id==='income-clear'){ incomeMonthFilter=''; render(); }
+  });
+}
+function renderStudentsInPlace(){
+  // avoid losing input focus by only re-rendering the list portion
+  const c = document.getElementById('content');
+  c.innerHTML = renderStudents();
+  const input = document.getElementById('student-search');
+  if(input){ input.focus(); input.selectionStart = input.selectionEnd = input.value.length; }
+}
+
+/* ============ INIT ============ */
+async function init(){
+  initEvents();
+  await loadAll();
+  render();
+}
+init();
+</script>
+</body>
+</html>
